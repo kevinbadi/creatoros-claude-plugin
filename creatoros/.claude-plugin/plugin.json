@@ -1,11 +1,26 @@
 {
   "name": "creatoros",
   "displayName": "Creator OS",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Run your socials from Claude Code: the Creator OS connector, skills, and a live pane for accounts, scheduled posts and your inbox.",
-  "author": { "name": "Creator OS", "url": "https://www.creatoros.ca" },
-  "homepage": "https://www.creatoros.ca/docs/mcp",
-  "keywords": ["social", "instagram", "tiktok", "youtube", "scheduling", "ads"],
+  "author": {
+    "name": "Creator OS",
+    "url": "https://www.creatoros.ca"
+  },
+  "homepage": "https://www.creatoros.ca/docs/claude-code",
+  "repository": "https://github.com/kevinbadi/creatoros-claude-plugin",
+  "icon": "./icon.png",
+  "documentationUrl": "https://www.creatoros.ca/docs/claude-code",
+  "privacyPolicyUrl": "https://www.creatoros.ca/privacy-policy",
+  "termsOfServiceUrl": "https://www.creatoros.ca/terms-of-service",
+  "keywords": [
+    "social",
+    "instagram",
+    "tiktok",
+    "youtube",
+    "scheduling",
+    "ads"
+  ],
   "types": "./types/index.d.ts",
   "userConfig": {
     "api_key": {
