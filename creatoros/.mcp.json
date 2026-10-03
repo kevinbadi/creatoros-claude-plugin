@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "creatoros": {
+      "type": "http",
+      "url": "https://mcp.creatoros.ca/mcp",
+      "headers": { "Authorization": "Bearer ${user_config.api_key}" }
+    }
+  }
+}

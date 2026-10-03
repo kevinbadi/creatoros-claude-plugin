@@ -1,0 +1,18 @@
+{
+  "name": "creatoros",
+  "displayName": "Creator OS",
+  "version": "0.1.0",
+  "description": "Run your socials from Claude Code: the Creator OS connector, skills, and a live pane for accounts, scheduled posts and your inbox.",
+  "author": { "name": "Creator OS", "url": "https://www.creatoros.ca" },
+  "homepage": "https://www.creatoros.ca/docs/mcp",
+  "keywords": ["social", "instagram", "tiktok", "youtube", "scheduling", "ads"],
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "api_key": {
+      "type": "string",
+      "title": "Creator OS API key",
+      "description": "Your cos_live_ key from https://www.creatoros.ca/app/settings. It is pinned to one workspace.",
+      "sensitive": true
+    }
+  }
+}

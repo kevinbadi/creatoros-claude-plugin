@@ -1,0 +1,12 @@
+{
+  "name": "creatoros",
+  "description": "The Creator OS plugin for Claude Code.",
+  "owner": { "name": "Creator OS", "url": "https://www.creatoros.ca" },
+  "plugins": [
+    {
+      "name": "creatoros",
+      "source": "./creatoros",
+      "description": "Run your socials from Claude Code: the Creator OS connector, skills, and a live pane for accounts, scheduled posts and your inbox."
+    }
+  ]
+}
