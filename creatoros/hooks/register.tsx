@@ -217,6 +217,11 @@ const GUARDED = new Set([
   'delete_automation', 'delete_webhook', 'blog_delete_article',
   'skool_create_post', 'skool_multi_post', 'skool_delete_post', 'skool_send_message', 'skool_block_user',
   'ads_create_ad', 'ads_boost_post', 'ads_update_budget', 'ads_set_status', 'ads_delete_ad', 'ads_duplicate', 'ads_request',
+  'discord_send_dm', 'discord_delete_message', 'discord_connect_channels', 'discord_set_member_role', 'discord_create_event',
+  'whatsapp_send_template', 'whatsapp_create_template', 'broadcasts_send', 'contacts_import', 'platform_request',
+  'slack_send_dm', 'slack_connect_channels',
+  'shopify_create_product', 'shopify_update_product', 'shopify_set_prices', 'shopify_set_product_status', 'shopify_set_inventory',
+  'shopify_create_discount', 'shopify_set_discount_state',
 ])
 const NEEDS_VALIDATION = new Set(['ads_create_ad', 'ads_boost_post'])
 const CANCELLED = 'Cancelled in Creator OS'
@@ -251,9 +256,26 @@ function summarize(name: string, a: Json, hasValidated: boolean): string {
   } else if (name === 'skool_create_post' || name === 'skool_multi_post') {
     lines.push(`Creator OS will post to Skool${a.community ? ' (' + say(a.community) + ')' : ''}.`)
     if (a.title || a.content) lines.push(`Post: "${excerpt(a.title ?? a.content)}"`)
-  } else if (name === 'send_message' || name === 'skool_send_message') {
+  } else if (name === 'send_message' || name === 'skool_send_message' || name === 'discord_send_dm' || name === 'slack_send_dm') {
     lines.push('Creator OS will send a direct message.')
     if (a.message ?? a.content ?? a.text) lines.push(`Message: "${excerpt(a.message ?? a.content ?? a.text)}"`)
+  } else if (name === 'whatsapp_send_template') {
+    lines.push(`Creator OS will send the WhatsApp template "${say(a.template_name)}"${a.to ? ' to ' + say(a.to) : ''}. Meta bills template messages.`)
+  } else if (name === 'broadcasts_send') {
+    lines.push(`Creator OS will ${a.schedule_at ? 'schedule a broadcast for ' + say(a.schedule_at) : 'send a broadcast now'} to everyone on its recipient list.`)
+  } else if (name === 'contacts_import') {
+    lines.push(`Creator OS will add ${Array.isArray(a.contacts) ? a.contacts.length : 'these'} contacts to this workspace.`)
+  } else if (name === 'shopify_set_prices') {
+    lines.push(`Creator OS will change prices on a live Shopify product (${Array.isArray(a.variants) ? a.variants.length : 'some'} variants).`)
+  } else if (name === 'shopify_set_product_status') {
+    lines.push(`Creator OS will ${say(a.action) || 'change the status of'} ${Array.isArray(a.product_ids) ? a.product_ids.length : 'these'} Shopify products.${a.action === 'delete' ? ' Deleting is permanent.' : ''}`)
+  } else if (name === 'shopify_create_discount') {
+    lines.push(`Creator OS will create a Shopify discount: ${excerpt(a.title)}${a.percentage !== undefined ? ' (' + say(a.percentage) + '% off)' : a.amount ? ' (' + say(a.amount) + ' off)' : ''}.`)
+  } else if (name === 'shopify_create_product' || name === 'shopify_update_product' || name === 'shopify_set_inventory' || name === 'shopify_set_discount_state') {
+    lines.push(`Creator OS will ${name.replace(/^shopify_/, '').replace(/_/g, ' ')} on the connected Shopify store.`)
+    if (a.title) lines.push(`Product: ${excerpt(a.title)}`)
+  } else if (name === 'platform_request') {
+    lines.push(`Creator OS will call ${say(a.method).toUpperCase()} ${say(a.path)}.`)
   } else {
     lines.push(`Creator OS will run ${name.replace(/_/g, ' ')}. This can not be undone.`)
   }
