@@ -215,13 +215,20 @@ async function healthText($: EngineInterface, key: string): Promise<string> {
 const GUARDED = new Set([
   'create_post', 'update_post', 'delete_post', 'send_message', 'delete_comment', 'disconnect_account',
   'delete_automation', 'delete_webhook', 'blog_delete_article',
-  'skool_create_post', 'skool_multi_post', 'skool_delete_post', 'skool_send_message', 'skool_block_user',
+  'workflows_create', 'workflows_from_template', 'workflows_set_status', 'workflows_delete', 'workflows_run', 'dm_flows_set_status', 'dm_flows_delete', 'automation_rules_create', 'automation_rules_set_status', 'automation_rules_delete', 'automation_request',
+  'skool_create_post', 'skool_multi_post', 'skool_delete_post', 'skool_send_message', 'skool_block_user', 'rewards_submit',
   'ads_create_ad', 'ads_boost_post', 'ads_update_budget', 'ads_set_status', 'ads_delete_ad', 'ads_duplicate', 'ads_request',
   'discord_send_dm', 'discord_delete_message', 'discord_connect_channels', 'discord_set_member_role', 'discord_create_event',
-  'whatsapp_send_template', 'whatsapp_create_template', 'broadcasts_send', 'contacts_import', 'platform_request',
+  'whatsapp_send_template', 'whatsapp_create_template', 'broadcasts_send', 'contacts_import', 'platform_request', 'api_request',
   'slack_send_dm', 'slack_connect_channels',
   'shopify_create_product', 'shopify_update_product', 'shopify_set_prices', 'shopify_set_product_status', 'shopify_set_inventory',
   'shopify_create_discount', 'shopify_set_discount_state',
+  'reverse_engineer_approve', 'reverse_engineer_set_autonomy', 'reverse_engineer_set_repeat', 'provider_keys_remove',
+  'clipper_post_clip', 'clipper_autopilot_create', 'clipper_autopilot_update',
+  'vlogger_post_output', 'vlogger_compile', 'vlogger_redo',
+  'variations_post',
+  'agent_posts_create', 'agent_posts_release', 'agent_posts_delete', 'smarty_update',
+  'network_launch', 'network_settings_update', 'agent_messages_launch', 'agent_messages_pause',
 ])
 const NEEDS_VALIDATION = new Set(['ads_create_ad', 'ads_boost_post'])
 const CANCELLED = 'Cancelled in Creator OS'
@@ -253,6 +260,16 @@ function summarize(name: string, a: Json, hasValidated: boolean): string {
     if (a.budget_amount !== undefined) lines.push(`Budget: ${say(a.budget_amount)}${a.budget_type ? ' ' + say(a.budget_type) : ''}`)
     if (a.start_date || a.end_date) lines.push(`Dates: ${say(a.start_date) || 'now'} to ${say(a.end_date) || 'no end date'}`)
     if (NEEDS_VALIDATION.has(name) && !hasValidated) lines.push('No validate_only check was run first.')
+  } else if (name === 'reverse_engineer_approve') {
+    lines.push('Creator OS will launch this marketing plan: schedule its posts and create its tracked link.')
+  } else if (name === 'reverse_engineer_set_autonomy') {
+    lines.push(a.autonomy === 'autonomous'
+      ? 'Creator OS will let this marketing agent launch and change its plan every week without asking.'
+      : 'Creator OS will ask before this marketing agent launches anything.')
+  } else if (name === 'reverse_engineer_set_repeat') {
+    lines.push(a.repeat === 'daily' || a.repeat === 'weekly'
+      ? `Creator OS will re-run this research ${say(a.repeat)} on its own. Each check uses one of this month's runs.`
+      : 'Creator OS will stop re-running this research.')
   } else if (name === 'skool_create_post' || name === 'skool_multi_post') {
     lines.push(`Creator OS will post to Skool${a.community ? ' (' + say(a.community) + ')' : ''}.`)
     if (a.title || a.content) lines.push(`Post: "${excerpt(a.title ?? a.content)}"`)
@@ -274,7 +291,7 @@ function summarize(name: string, a: Json, hasValidated: boolean): string {
   } else if (name === 'shopify_create_product' || name === 'shopify_update_product' || name === 'shopify_set_inventory' || name === 'shopify_set_discount_state') {
     lines.push(`Creator OS will ${name.replace(/^shopify_/, '').replace(/_/g, ' ')} on the connected Shopify store.`)
     if (a.title) lines.push(`Product: ${excerpt(a.title)}`)
-  } else if (name === 'platform_request') {
+  } else if (name === 'platform_request' || name === 'api_request') {
     lines.push(`Creator OS will call ${say(a.method).toUpperCase()} ${say(a.path)}.`)
   } else {
     lines.push(`Creator OS will run ${name.replace(/_/g, ' ')}. This can not be undone.`)

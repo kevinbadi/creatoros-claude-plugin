@@ -5,7 +5,7 @@ import { requireKey, api, userPath, uploadFile, args, fmtSlot } from './lib.mjs'
 requireKey();
 const a = args();
 if (!a.video) {
-  console.error('Usage: node --env-file=.env.local scripts/post.mjs --video <file|url> [--caption ..] [--title ..] [--keyword WORD] [--link URL] [--dm ..] [--platforms a,b] [--wait]');
+  console.error('Usage: node --env-file=.env.local scripts/post.mjs --video <file|url> [--caption ..] [--title ..] [--keyword WORD] [--link URL] [--dm ..] [--platforms a,b] [--trial-reel manual|auto] [--autoblast VIEWS] [--autoblast-platforms a,b] [--brief BRIEF_ID] [--wait]');
   process.exit(2);
 }
 try {
@@ -23,6 +23,12 @@ try {
   if (a.keyword) body.keyword = String(a.keyword);
   if (a.link) body.resourceUrl = String(a.link);
   if (a.dm) body.dmNote = String(a.dm);
+  if (a['trial-reel']) body.trialReel = a['trial-reel'] === true ? 'manual' : String(a['trial-reel']);
+  if (a.brief) body.briefId = String(a.brief);
+  if (a.autoblast) {
+    body.autoblast = { threshold: Number(a.autoblast) };
+    if (a['autoblast-platforms']) body.autoblast.platforms = String(a['autoblast-platforms']).split(',').map((s) => s.trim()).filter(Boolean);
+  }
   if (a.platforms) body.platforms = String(a.platforms).split(',').map((p) => p.trim().toLowerCase()).filter(Boolean);
 
   const created = await api(await userPath('/agent-posts'), { method: 'POST', body: JSON.stringify(body) });

@@ -44,6 +44,9 @@ node --env-file=.env.local scripts/brand-kit.mjs set kit.json   # write it back
 | `--link <url>` | the resource the DM delivers. Turns the comment-to-DM funnel on. |
 | `--dm "<text>"` | first line of the DM (the link and a follow ask are appended). |
 | `--platforms instagram,tiktok,youtube` | subset of connected platforms. Default is all of them. |
+| `--trial-reel manual\|auto` | post the Instagram copy as a Trial Reel: shown to non-followers first. `manual` = the user shares it to followers from the Instagram app, `auto` = Instagram does when it performs well. Needs 200+ Instagram followers. The comment-to-DM funnel works on it. |
+| `--autoblast VIEWS` | with `--trial-reel`: post only your winners. Once the Trial Reel passes VIEWS views (typically 1000, 5000 or 10000) it goes out to the platforms this post didn't use, checked about every 30 minutes for 7 days. `--autoblast-platforms tiktok,youtube` limits where. Pair it with `--platforms instagram` so the reel tests on Instagram first. |
+| `--brief BRIEF_ID` | the video was filmed from a Reverse Engineer Marketing brief (`actions[].id` with `kind: "brief"`): links them so the weekly cycle measures that format. |
 | `--wait` | poll until scheduled (or failed) and print the result. |
 
 Platforms: instagram, tiktok, youtube, twitter, threads, linkedin, facebook.
