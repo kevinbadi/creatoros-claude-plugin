@@ -216,7 +216,7 @@ const GUARDED = new Set([
   'create_post', 'update_post', 'delete_post', 'send_message', 'delete_comment', 'disconnect_account',
   'delete_automation', 'delete_webhook', 'blog_delete_article',
   'workflows_create', 'workflows_from_template', 'workflows_set_status', 'workflows_delete', 'workflows_run', 'dm_flows_set_status', 'dm_flows_delete', 'automation_rules_create', 'automation_rules_set_status', 'automation_rules_delete', 'automation_request',
-  'skool_create_post', 'skool_multi_post', 'skool_delete_post', 'skool_send_message', 'skool_block_user', 'rewards_submit',
+  'skool_create_post', 'skool_multi_post', 'skool_delete_post', 'skool_send_message', 'skool_block_user', 'rewards_submit', 'rewards_leave',
   'ads_create_ad', 'ads_boost_post', 'ads_update_budget', 'ads_set_status', 'ads_delete_ad', 'ads_duplicate', 'ads_request',
   'discord_send_dm', 'discord_delete_message', 'discord_connect_channels', 'discord_set_member_role', 'discord_create_event',
   'whatsapp_send_template', 'whatsapp_create_template', 'broadcasts_send', 'contacts_import', 'platform_request', 'api_request',
