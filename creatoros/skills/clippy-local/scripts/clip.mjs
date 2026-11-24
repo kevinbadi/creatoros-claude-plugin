@@ -77,10 +77,12 @@ function run(cmd, argv, { passErr = false, timeout = 3 * 3600_000 } = {}) {
 }
 
 async function probe(file) {
-  const j = JSON.parse(await run(FFPROBE, ['-v', 'error', '-show_entries', 'format=duration:stream=codec_type,width,height,avg_frame_rate', '-of', 'json', file]));
+  const j = JSON.parse(await run(FFPROBE, ['-v', 'error', '-show_entries', 'format=duration:stream=codec_type,width,height,avg_frame_rate,start_time', '-of', 'json', file]));
   const v = (j.streams ?? []).find((s) => s.codec_type === 'video');
   const [a, b] = String(v?.avg_frame_rate ?? '30/1').split('/').map(Number);
-  return { w: v?.width ?? 0, h: v?.height ?? 0, fps: b ? a / b : 30, duration: Number(j.format?.duration ?? 0), audio: (j.streams ?? []).some((s) => s.codec_type === 'audio') };
+  const au = (j.streams ?? []).find((s) => s.codec_type === 'audio');
+  return { w: v?.width ?? 0, h: v?.height ?? 0, fps: b ? a / b : 30, duration: Number(j.format?.duration ?? 0), audio: !!au,
+    vstart: Number(v?.start_time ?? 0) || 0, astart: Number(au?.start_time ?? 0) || 0 };
 }
 
 const stamp = (t) => {
@@ -173,7 +175,7 @@ async function render(dirArg, opt) {
   const imp = (f) => import(pathToFileURL(path.join(ENGINE, f)).href);
   const { buildAss, FONT_FILES, FONTS_DIR, mergeDesign } = await imp('captions.mjs');
   const { applyFixes, findPhrase, intersect, subtract } = await imp('edits.mjs');
-  const { SEAMED, keepRanges, mapTime, renderArgs, seamOf } = await imp('render.mjs');
+  const { SEAMED, alignArgs, keepRanges, mapTime, renderArgs, seamOf } = await imp('render.mjs');
 
   const source = readJson(path.join(dir, 'source.json'));
   const segments = fs.existsSync(path.join(dir, 'transcript.json')) ? readJson(path.join(dir, 'transcript.json')).segments ?? [] : [];
@@ -234,8 +236,16 @@ async function render(dirArg, opt) {
       const dur = end + pad + tail - cutFrom;
       await run(FFMPEG, ['-y', '-loglevel', 'error', '-ss', cutFrom.toFixed(3), '-i', source.video, '-t', dur.toFixed(3), '-map', '0:v:0', '-map', '0:a:0?',
         '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '16', '-c:a', 'aac', '-b:a', '192k', src]);
-      const info = await probe(src);
+      let info = await probe(src);
       if (!info.w || info.duration < 1) throw new Error('Could not cut that part of the video.');
+      // Same sync check as Creator OS: a start gap between audio and video plays as broken lip sync.
+      const fix = alignArgs(src, path.join(work, 'src-aligned.mp4'), info);
+      if (fix) {
+        await run(FFMPEG, fix);
+        fs.renameSync(path.join(work, 'src-aligned.mp4'), src);
+        console.error(`${label}: lined up audio and video (${Math.abs(info.vstart - info.astart).toFixed(2)} s apart)`);
+        info = await probe(src);
+      }
 
       console.error(`${label}: captioning`);
       const wav = path.join(work, 'words.wav');

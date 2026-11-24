@@ -277,6 +277,23 @@ export function renderArgs({ src, srcInfo, out, plan, keep, aspect, design, assP
   return { args, W, H, fps, pieces: pieces.length, duration: keep.reduce((s, [a, b]) => s + (b - a), 0) };
 }
 
+/**
+ * Audio and video of a cut must start together: the render resets each stream's clock per piece, so a gap
+ * between them (one track starting later, e.g. an input seek into raw Twitch segments put the video 1.65 s
+ * after the audio, 2026-11-24) plays as broken lip sync for the whole clip. `info` needs vstart / astart
+ * (ffprobe stream start_time). Returns the ffmpeg args that pad the later track's start (first frame held
+ * or silence added) so both line up on the original timeline, or null when they already do.
+ */
+export function alignArgs(src, out, info, tolerance = 0.04) {
+  if (!info?.audio || Math.abs((info.vstart ?? 0) - (info.astart ?? 0)) <= tolerance) return null;
+  const gap = Math.abs(info.vstart - info.astart);
+  const filter = info.vstart > info.astart
+    ? `[0:v]setpts=PTS-STARTPTS,tpad=start_duration=${gap.toFixed(3)}:start_mode=clone[v];[0:a]asetpts=PTS-STARTPTS[a]`
+    : `[0:v]setpts=PTS-STARTPTS[v];[0:a]asetpts=PTS-STARTPTS,adelay=${Math.round(gap * 1000)}:all=1[a]`;
+  return ['-y', '-loglevel', 'error', '-i', src, '-filter_complex', filter, '-map', '[v]', '-map', '[a]',
+    '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '16', '-c:a', 'aac', '-b:a', '192k', out];
+}
+
 /** Kept ranges: the words with pauses longer than `gap` cut down to `pad` each side. */
 export function keepRanges(words, duration, { cut = true, gap = 0.7, pad = 0.18 } = {}) {
   if (!cut || !words?.length) return [[0, duration]];
